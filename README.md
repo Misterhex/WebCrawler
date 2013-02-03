@@ -1,7 +1,7 @@
 MisterHex.WebCrawling
 =====================
 
-Lightweight web crawler which expose result as IObservable so that you can chain it with other Rx (Reactive Extension) operators.
+Lightweight web crawler which return result as IObservable<Uri> so that you can chain it with other Rx (Reactive Extension) operators.
 
 Usage
 <br /> 
