@@ -19,95 +19,102 @@ namespace MisterHex.WebCrawling
     {
         public static IObservable<Uri> Crawl(Uri uri)
         {
-            return new Crawler().StartCrawl(uri);
+            return new CrawlerObservable(uri);
         }
 
-        private List<Uri> _jobList = new List<Uri>();
-        private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
-
-        private IObservable<Uri> StartCrawl(Uri uri)
+        private class CrawlerObservable : ObservableBase<Uri>
         {
-            StartCrawlingAsync(uri);
-            return _subject;
-        }
+            private List<Uri> _jobList = new List<Uri>();
+            private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
+            private Uri _rootUri;
 
-        private Task StartCrawlingAsync(Uri uri)
-        {
-            return Task.Factory.StartNew(() => StartCrawling(uri));
-        }
-
-        private void StartCrawling(Uri uri)
-        {
-            _jobList.Add(uri);
-            IUriFilter[] filterers = GetFilters(uri).ToArray();
-
-            while (_jobList.Count != 0)
+            public CrawlerObservable(Uri uri)
             {
-                List<Task<IEnumerable<Uri>>> crawlerTasks = new List<Task<IEnumerable<Uri>>>();
+                _rootUri = uri;
+            }
 
-                var jobsToRun = _jobList.ToList();
-                _jobList.Clear();
+            protected override IDisposable SubscribeCore(IObserver<Uri> observer)
+            {
+                StartCrawlingAsync(_rootUri);
+                return _subject.Subscribe(observer);
+            }
 
-                jobsToRun.ForEach(i =>
+            private Task StartCrawlingAsync(Uri uri)
+            {
+                return Task.Factory.StartNew(() => StartCrawling(uri));
+            }
+
+            private void StartCrawling(Uri uri)
+            {
+                _jobList.Add(uri);
+                IUriFilter[] filterers = GetFilters(uri).ToArray();
+
+                while (_jobList.Count != 0)
+                {
+                    List<Task<IEnumerable<Uri>>> crawlerTasks = new List<Task<IEnumerable<Uri>>>();
+
+                    var jobsToRun = _jobList.ToList();
+                    _jobList.Clear();
+
+                    jobsToRun.ForEach(i =>
                     {
                         var task = CrawlSingle(i)
                             .ContinueWith(t =>
-                                {
-                                    var filtered = Filter(t.Result, filterers).AsEnumerable();
-                                    filtered.ToList().ForEach(_subject.OnNext);
-                                    return filtered;
-                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                            {
+                                var filtered = Filter(t.Result, filterers).AsEnumerable();
+                                filtered.ToList().ForEach(_subject.OnNext);
+                                return filtered;
+                            }, TaskContinuationOptions.OnlyOnRanToCompletion);
                         crawlerTasks.Add(task);
                     });
 
-                Task.WaitAll(crawlerTasks.ToArray());
+                    Task.WaitAll(crawlerTasks.ToArray());
 
-                List<Uri> newLinks = crawlerTasks.SelectMany(i => i.Result).ToList();
+                    List<Uri> newLinks = crawlerTasks.SelectMany(i => i.Result).ToList();
 
-                _jobList.AddRange(newLinks.ToArray());
+                    _jobList.AddRange(newLinks.ToArray());
+                }
+
+                _subject.OnCompleted();
             }
 
-            _subject.OnCompleted();
-        }
-
-
-        public static async Task<IEnumerable<Uri>> CrawlSingle(Uri uri)
-        {
-            using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(1) })
+            private async Task<IEnumerable<Uri>> CrawlSingle(Uri uri)
             {
-                IEnumerable<Uri> result = new List<Uri>();
-
-                try
+                using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(1) })
                 {
-                    string html = await client.GetStringAsync(uri).ContinueWith(t => t.Result, TaskContinuationOptions.OnlyOnRanToCompletion);
-                    result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
+                    IEnumerable<Uri> result = new List<Uri>();
+
+                    try
+                    {
+                        string html = await client.GetStringAsync(uri).ContinueWith(t => t.Result, TaskContinuationOptions.OnlyOnRanToCompletion);
+                        result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
+                        return result;
+                    }
+                    catch
+                    { }
                     return result;
                 }
-                catch
-                { }
-                return result;
+            }
+
+            private static List<Uri> Filter(IEnumerable<Uri> uris, params IUriFilter[] filters)
+            {
+                var filtered = uris.ToList();
+                foreach (var filter in filters.ToList())
+                {
+                    filtered = filter.Filter(filtered);
+                }
+                return filtered;
+            }
+
+            private static List<IUriFilter> GetFilters(Uri uri)
+            {
+                return new List<IUriFilter>() 
+                {
+                    new ExcludeRootUriFilter(uri), 
+                    new ExternalUriFilter(uri), 
+                    new AlreadyVisitedUriFilter()
+                };
             }
         }
-
-        private static List<Uri> Filter(IEnumerable<Uri> uris, params IUriFilter[] filters)
-        {
-            var filtered = uris.ToList();
-            foreach (var filter in filters.ToList())
-            {
-                filtered = filter.Filter(filtered);
-            }
-            return filtered;
-        }
-
-        private static List<IUriFilter> GetFilters(Uri uri)
-        {
-            return new List<IUriFilter>() 
-            {
-                new ExcludeRootUriFilter(uri), 
-                new ExternalUriFilter(uri), 
-                new AlreadyVisitedUriFilter()
-            };
-        }
-
     }
 }

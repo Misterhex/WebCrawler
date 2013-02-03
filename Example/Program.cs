@@ -13,7 +13,7 @@ namespace Example
         static void Main(string[] args)
         {
             IObservable<Uri> observable1 = Crawler.Crawl(new Uri("http://www.codinghorror.com/"));
-
+            
             observable1.Subscribe(onNext: uri =>
             {
                 Console.WriteLine(uri);
