@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace Example
 {
@@ -11,8 +12,9 @@ namespace Example
     {
         static void Main(string[] args)
         {
-            IObservable<Uri> observable = Crawler.Crawl(new Uri("http://www.codinghorror.com/"));
-            observable.Subscribe(onNext: uri =>
+            IObservable<Uri> observable1 = Crawler.Crawl(new Uri("http://www.codinghorror.com/"));
+
+            observable1.Subscribe(onNext: uri =>
             {
                 Console.WriteLine(uri);
             }
@@ -20,7 +22,6 @@ namespace Example
             );
 
             Console.ReadLine();
-
         }
 
     }

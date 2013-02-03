@@ -39,6 +39,7 @@ namespace MisterHex.WebCrawling
         private void StartCrawling(Uri uri)
         {
             _jobList.Add(uri);
+            IUriFilter[] filterers = GetFilters(uri).ToArray();
 
             while (_jobList.Count != 0)
             {
@@ -47,29 +48,45 @@ namespace MisterHex.WebCrawling
                 var jobsToRun = _jobList.ToList();
                 _jobList.Clear();
 
-                jobsToRun.ForEach(i => crawlerTasks.Add(i.Execute()));
+                jobsToRun.ForEach(i =>
+                    {
+                        var task = CrawlSingle(i)
+                            .ContinueWith(t =>
+                                {
+                                    var filtered = Filter(t.Result, filterers).AsEnumerable();
+                                    filtered.ToList().ForEach(_subject.OnNext);
+                                    return filtered;
+                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                        crawlerTasks.Add(task);
+                    });
 
-                if (crawlerTasks.Count > 0)
-                {
-                    Task.WaitAll(crawlerTasks.ToArray());
-                }
+                Task.WaitAll(crawlerTasks.ToArray());
 
-                List<Uri> allResults = crawlerTasks.SelectMany(i => i.Result).ToList();
+                List<Uri> newLinks = crawlerTasks.SelectMany(i => i.Result).ToList();
 
-                // filter out external links from results.
-                // filter out links already in cache.
-                var filtered = Filter(allResults, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri), new AlreadyVisitedUriFilter());
-
-                // push to observer.
-                filtered.ForEach(_subject.OnNext);
-
-                // put all unfiltered back to job list.
-                _jobList.AddRange(filtered.ToArray());
-
-                // repeat.
+                _jobList.AddRange(newLinks.ToArray());
             }
 
             _subject.OnCompleted();
+        }
+
+
+        public static async Task<IEnumerable<Uri>> CrawlSingle(Uri uri)
+        {
+            using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(1) })
+            {
+                IEnumerable<Uri> result = new List<Uri>();
+
+                try
+                {
+                    string html = await client.GetStringAsync(uri).ContinueWith(t => t.Result, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
+                    return result;
+                }
+                catch
+                { }
+                return result;
+            }
         }
 
         private static List<Uri> Filter(IEnumerable<Uri> uris, params IUriFilter[] filters)
@@ -80,6 +97,16 @@ namespace MisterHex.WebCrawling
                 filtered = filter.Filter(filtered);
             }
             return filtered;
+        }
+
+        private static List<IUriFilter> GetFilters(Uri uri)
+        {
+            return new List<IUriFilter>() 
+            {
+                new ExcludeRootUriFilter(uri), 
+                new ExternalUriFilter(uri), 
+                new AlreadyVisitedUriFilter()
+            };
         }
 
     }

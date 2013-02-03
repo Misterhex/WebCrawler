@@ -32,22 +32,6 @@ namespace MisterHex.WebCrawling
 
         }
 
-        public static async Task<IEnumerable<Uri>> Execute(this Uri uri)
-        {
-            using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(1) })
-            {
-                IEnumerable<Uri> result = new List<Uri>();
-
-                try
-                {
-                    string html = await client.GetStringAsync(uri).ContinueWith(t => t.Result, TaskContinuationOptions.OnlyOnRanToCompletion);
-                    result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
-                    return result;
-                }
-                catch
-                { }
-                return result;
-            }
-        }
+        
     }
 }
