@@ -1,4 +1,4 @@
-MisterHex.WebCrawling
+WebCrawler
 =====================
 
 Lightweight web crawler which return result as IObservable<Uri> so it can be chained with other Rx (Reactive Extension) operators.
