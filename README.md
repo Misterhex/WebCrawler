@@ -7,6 +7,6 @@ Lightweight web crawler which return result as IObservable<Uri>.
 Usage
 <br /> 
 
-<code>Crawler crawler = new Crawler();</code>
+<code>Crawler crawler = new Crawler();</code><br/>
 <code>IObservable<Uri> observable1 = crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
 
