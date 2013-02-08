@@ -1,12 +1,12 @@
 WebCrawler
 =====================
 
-Lightweight web crawler which return result as IObservable<Uri> so it can be chained with other Rx (Reactive Extension) operators.
+Lightweight web crawler which return result as IObservable<Uri>.
 <br /> 
 <br /> 
 Usage
 <br /> 
 
-<code>IObservable<Uri> observable = Crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
-<code>observable.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));
-</code>
+<code>Crawler crawler = new Crawler();</code>
+<code>IObservable<Uri> observable1 = crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
+
