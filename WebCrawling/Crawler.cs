@@ -25,6 +25,7 @@ namespace MisterHex.WebCrawling
             private IEnumerable<IUriFilter> _filters = Enumerable.Empty<IUriFilter>();
 
             public CrawledLinksObservable(Uri uri)
+                : this(uri, new IUriFilter[0])
             { }
 
             public CrawledLinksObservable(Uri uri, params IUriFilter[] filters)
@@ -108,7 +109,7 @@ namespace MisterHex.WebCrawling
 
         public IObservable<Uri> Crawl(Uri uri)
         {
-            return new CrawledLinksObservable(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri),new AlreadyVisitedUriFilter());
+            return new CrawledLinksObservable(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri), new AlreadyVisitedUriFilter());
         }
 
     }
