@@ -22,10 +22,10 @@ namespace MisterHex.WebCrawling
             private List<Uri> _jobList = new List<Uri>();
             private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
             private Uri _rootUri;
-            private IEnumerable<IUriFilter> _filters = Enumerable.Empty<IUriFilter>();
+            private IEnumerable<IUriFilter> _filters;
 
             public CrawledLinksObservable(Uri uri)
-                : this(uri, new IUriFilter[0])
+                : this(uri, Enumerable.Empty<IUriFilter>().ToArray())
             { }
 
             public CrawledLinksObservable(Uri uri, params IUriFilter[] filters)
@@ -112,5 +112,9 @@ namespace MisterHex.WebCrawling
             return new CrawledLinksObservable(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri), new AlreadyVisitedUriFilter());
         }
 
+        public IObservable<Uri> Crawl(Uri uri, params IUriFilter[] filters)
+        {
+            return new CrawledLinksObservable(uri, filters);
+        }
     }
 }

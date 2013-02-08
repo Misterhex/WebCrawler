@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MisterHex.WebCrawling
 {
-    internal interface IUriFilter
+    public interface IUriFilter
     {
         List<Uri> Filter(IEnumerable<Uri> input);
     }
