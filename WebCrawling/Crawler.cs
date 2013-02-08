@@ -17,20 +17,20 @@ namespace MisterHex.WebCrawling
 {
     public class Crawler
     {
-        public static IObservable<Uri> Crawl(Uri uri)
-        {
-            return new CrawlerObservable(uri);
-        }
-
-        private class CrawlerObservable : ObservableBase<Uri>
+        private class CrawledLinksObservable : ObservableBase<Uri>
         {
             private List<Uri> _jobList = new List<Uri>();
             private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
             private Uri _rootUri;
+            private IEnumerable<IUriFilter> _filters = Enumerable.Empty<IUriFilter>();
 
-            public CrawlerObservable(Uri uri)
+            public CrawledLinksObservable(Uri uri)
+            { }
+
+            public CrawledLinksObservable(Uri uri, params IUriFilter[] filters)
             {
                 _rootUri = uri;
+                _filters = filters;
             }
 
             protected override IDisposable SubscribeCore(IObserver<Uri> observer)
@@ -47,7 +47,7 @@ namespace MisterHex.WebCrawling
             private void StartCrawling(Uri uri)
             {
                 _jobList.Add(uri);
-                IUriFilter[] filterers = GetFilters(uri).ToArray();
+                IUriFilter[] filterers = GetDefaultFilters(uri).ToArray();
 
                 while (_jobList.Count != 0)
                 {
@@ -105,16 +105,12 @@ namespace MisterHex.WebCrawling
                 }
                 return filtered;
             }
-
-            private static List<IUriFilter> GetFilters(Uri uri)
-            {
-                return new List<IUriFilter>() 
-                {
-                    new ExcludeRootUriFilter(uri), 
-                    new ExternalUriFilter(uri), 
-                    new AlreadyVisitedUriFilter()
-                };
-            }
         }
+
+        public IObservable<Uri> Crawl(Uri uri)
+        {
+            return new CrawledLinksObservable(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri),new AlreadyVisitedUriFilter());
+        }
+
     }
 }
