@@ -47,7 +47,6 @@ namespace MisterHex.WebCrawling
             private void StartCrawling(Uri uri)
             {
                 _jobList.Add(uri);
-                IUriFilter[] filterers = GetDefaultFilters(uri).ToArray();
 
                 while (_jobList.Count != 0)
                 {
@@ -61,7 +60,7 @@ namespace MisterHex.WebCrawling
                         var task = CrawlSingle(i)
                             .ContinueWith(t =>
                             {
-                                var filtered = Filter(t.Result, filterers).AsEnumerable();
+                                var filtered = Filter(t.Result, _filters.ToArray()).AsEnumerable();
                                 filtered.ToList().ForEach(_subject.OnNext);
                                 return filtered;
                             }, TaskContinuationOptions.OnlyOnRanToCompletion);
