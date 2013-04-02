@@ -10,6 +10,6 @@ Usage
 <br /> 
 
 <code>Crawler crawler = new Crawler();</code><br/>
-<code>var observable = crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
+<code>IObservable<Uri> observable = crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
 <code>observable.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));</code>
 
