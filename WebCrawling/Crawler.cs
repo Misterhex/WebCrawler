@@ -32,10 +32,9 @@ namespace MisterHex.WebCrawling
 
             public ReceivingCrawledUri(Uri uri, params IUriFilter[] filters)
             {
-                _rootUri = uri;
                 _filters = filters;
 
-                Task.Factory.StartNew(() => CrawlAsync(_rootUri));
+                CrawlAsync(uri).Start();
             }
 
             protected override IDisposable SubscribeCore(IObserver<Uri> observer)
