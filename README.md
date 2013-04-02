@@ -3,7 +3,7 @@ WebCrawler
 
 Just a simple web crawler which return crawled links as IObservable<Uri> using reactive extension and async await.
 
-Install-Package MisterHex.WebCrawling
+<code>Install-Package MisterHex.WebCrawling</code>
 <br /> 
 <br /> 
 Usage
