@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MisterHex.WebCrawling</id>
+    <version>1.0.0.4</version>
+    <title>MisterHexCrawler</title>
+    <authors>MisterHex</authors>
+    <owners>MisterHex</owners>
+    <projectUrl>https://github.com/Misterhex/WebCrawler</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Simple web crawler that return IObservable using Reactive Extension(Rx) and async await.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>crawler rx crawling spider</tags>
+  </metadata>
+</package>

@@ -12,73 +12,38 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Threading;
 
 namespace MisterHex.WebCrawling
 {
     public class Crawler
     {
-        private class CrawledLinksObservable : ObservableBase<Uri>
+        class ReceivingCrawledUri : ObservableBase<Uri>
         {
-            private List<Uri> _jobList = new List<Uri>();
+            public int _numberOfLinksLeft = 0;
+
             private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
             private Uri _rootUri;
             private IEnumerable<IUriFilter> _filters;
 
-            public CrawledLinksObservable(Uri uri)
+            public ReceivingCrawledUri(Uri uri)
                 : this(uri, Enumerable.Empty<IUriFilter>().ToArray())
             { }
 
-            public CrawledLinksObservable(Uri uri, params IUriFilter[] filters)
+            public ReceivingCrawledUri(Uri uri, params IUriFilter[] filters)
             {
                 _rootUri = uri;
                 _filters = filters;
+
+                Task.Factory.StartNew(() => CrawlAsync(_rootUri));
             }
 
             protected override IDisposable SubscribeCore(IObserver<Uri> observer)
             {
-                StartCrawlingAsync(_rootUri);
                 return _subject.Subscribe(observer);
             }
 
-            private Task StartCrawlingAsync(Uri uri)
-            {
-                return Task.Factory.StartNew(() => StartCrawling(uri));
-            }
-
-            private void StartCrawling(Uri uri)
-            {
-                _jobList.Add(uri);
-
-                while (_jobList.Count != 0)
-                {
-                    List<Task<IEnumerable<Uri>>> crawlerTasks = new List<Task<IEnumerable<Uri>>>();
-
-                    var jobsToRun = _jobList.ToList();
-                    _jobList.Clear();
-
-                    jobsToRun.ForEach(i =>
-                    {
-                        var task = CrawlSingle(i)
-                            .ContinueWith(t =>
-                            {
-                                var filtered = Filter(t.Result, _filters.ToArray()).AsEnumerable();
-                                filtered.ToList().ForEach(_subject.OnNext);
-                                return filtered;
-                            }, TaskContinuationOptions.OnlyOnRanToCompletion);
-                        crawlerTasks.Add(task);
-                    });
-
-                    Task.WaitAll(crawlerTasks.ToArray());
-
-                    List<Uri> newLinks = crawlerTasks.SelectMany(i => i.Result).ToList();
-
-                    _jobList.AddRange(newLinks.ToArray());
-                }
-
-                _subject.OnCompleted();
-            }
-
-            private async Task<IEnumerable<Uri>> CrawlSingle(Uri uri)
+            private async Task CrawlAsync(Uri uri)
             {
                 using (HttpClient client = new HttpClient() { Timeout = TimeSpan.FromMinutes(1) })
                 {
@@ -86,13 +51,22 @@ namespace MisterHex.WebCrawling
 
                     try
                     {
-                        string html = await client.GetStringAsync(uri).ContinueWith(t => t.Result, TaskContinuationOptions.OnlyOnRanToCompletion);
+                        string html = await client.GetStringAsync(uri);
                         result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
-                        return result;
+                        result = Filter(result, _filters.ToArray());
+
+                        result.ToList().ForEach(async i =>
+                        {
+                            Interlocked.Increment(ref _numberOfLinksLeft);
+                            _subject.OnNext(i);
+                            await CrawlAsync(i);
+                        });
                     }
                     catch
                     { }
-                    return result;
+
+                    if (Interlocked.Decrement(ref _numberOfLinksLeft) == 0)
+                        _subject.OnCompleted();
                 }
             }
 
@@ -109,12 +83,12 @@ namespace MisterHex.WebCrawling
 
         public IObservable<Uri> Crawl(Uri uri)
         {
-            return new CrawledLinksObservable(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri), new AlreadyVisitedUriFilter());
+            return new ReceivingCrawledUri(uri, new ExcludeRootUriFilter(uri), new ExternalUriFilter(uri), new AlreadyVisitedUriFilter());
         }
 
         public IObservable<Uri> Crawl(Uri uri, params IUriFilter[] filters)
         {
-            return new CrawledLinksObservable(uri, filters);
+            return new ReceivingCrawledUri(uri, filters);
         }
     }
 }
