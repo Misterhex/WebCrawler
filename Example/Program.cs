@@ -15,12 +15,7 @@ namespace Example
             Crawler crawler = new Crawler();
             IObservable<Uri> observable1 = crawler.Crawl(new Uri("http://www.codinghorror.com/"));
 
-            observable1.Subscribe(onNext: uri =>
-            {
-                Console.WriteLine(uri);
-            }
-            , onCompleted: () => Console.WriteLine("Crawling completed")
-            );
+            observable1.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));
 
             Console.ReadLine();
         }
