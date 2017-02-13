@@ -1,6 +1,8 @@
 WebCrawler
 =====================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/2wjwe5e2ug5siarr?svg=true)](https://ci.appveyor.com/project/Misterhex/webcrawler)
+
 Just a simple web crawler which return crawled links as IObservable<Uri> using reactive extension and async await.
 
 <code>Install-Package MisterHex.WebCrawling</code>
