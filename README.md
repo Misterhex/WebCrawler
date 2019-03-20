@@ -5,13 +5,14 @@ WebCrawler
 
 Just a simple web crawler which return crawled links as IObservable<Uri> using reactive extension and async await.
 
-<code>Install-Package MisterHex.WebCrawling</code>
-<br /> 
-<br /> 
-Usage
-<br /> 
+```
+Install-Package MisterHex.WebCrawling
+```
 
-<code>Crawler crawler = new Crawler();</code><br/>
-<code>IObservable<Uri> observable = crawler.Crawl(new Uri("http://www.codinghorror.com/"));</code>
-<code>observable.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));</code>
+## Usage
 
+```cs
+Crawler crawler = new Crawler();
+IObservable<Uri> observable = crawler.Crawl(new Uri("http://www.codinghorror.com/"));
+observable.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));
+```
