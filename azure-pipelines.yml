@@ -16,20 +16,27 @@ steps:
   displayName: 'nuget pack'
   inputs:
     command: 'pack'
-    packagesToPack: '**/*.csproj'
+    packagesToPack: '**/WebCrawling.csproj'
     includesymbols: true
     includesource: true
     versioningScheme: 'byPrereleaseNumber'
     majorVersion: '$(Major)'
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
+    verbosityPack: 'Normal'
   
 - task: Bash@3
   inputs:
     targetType: 'inline'
     script: 'ls -lahR . | grep nuspec'
 
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'cat *.nuspec'
+
 - task: NuGetCommand@2
+  displayName: 'nuget push'
   inputs:
     command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
