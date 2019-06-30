@@ -30,11 +30,6 @@ steps:
     targetType: 'inline'
     script: 'ls -lahR . | grep nuspec'
 
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: 'cat *.nuspec'
-
 - task: NuGetCommand@2
   displayName: 'nuget push'
   inputs:
@@ -43,3 +38,12 @@ steps:
     nuGetFeedType: 'external'
     publishFeedCredentials: 'nuget.org'
     verbosityPush: 'Normal'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NuGet.org'
+    verbosityPush: 'Normal'
+
