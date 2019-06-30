@@ -7,7 +7,7 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MisterHex.WebCrawling
+namespace WebCrawling
 {
     internal static class Extensions
     {
@@ -32,6 +32,6 @@ namespace MisterHex.WebCrawling
 
         }
 
-        
+
     }
 }

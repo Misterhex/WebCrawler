@@ -1,20 +1,15 @@
 ﻿using CsQuery;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.Caching;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Threading;
 
-namespace MisterHex.WebCrawling
+namespace WebCrawling
 {
     public class Crawler
     {
@@ -23,7 +18,9 @@ namespace MisterHex.WebCrawling
             public int _numberOfLinksLeft = 0;
 
             private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
-            private Uri _rootUri;
+
+            private readonly Uri _uri;
+
             private IEnumerable<IUriFilter> _filters;
 
             public ReceivingCrawledUri(Uri uri)
@@ -32,13 +29,14 @@ namespace MisterHex.WebCrawling
 
             public ReceivingCrawledUri(Uri uri, params IUriFilter[] filters)
             {
+                _uri = uri;
                 _filters = filters;
 
-                CrawlAsync(uri).Start();
             }
 
             protected override IDisposable SubscribeCore(IObserver<Uri> observer)
             {
+                var _ = CrawlAsync(_uri);
                 return _subject.Subscribe(observer);
             }
 
