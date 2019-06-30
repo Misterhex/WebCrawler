@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MisterHex.WebCrawling
+namespace WebCrawling
 {
     internal class ExternalUriFilter : IUriFilter
     {

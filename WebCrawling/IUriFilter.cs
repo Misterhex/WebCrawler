@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
 
-namespace MisterHex.WebCrawling
+namespace WebCrawling
 {
     public interface IUriFilter
     {

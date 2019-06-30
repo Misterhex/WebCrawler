@@ -14,7 +14,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading;
 
-namespace MisterHex.WebCrawling
+namespace WebCrawling
 {
     public class Crawler
     {
@@ -23,7 +23,7 @@ namespace MisterHex.WebCrawling
             public int _numberOfLinksLeft = 0;
 
             private ReplaySubject<Uri> _subject = new ReplaySubject<Uri>();
-            private Uri _rootUri;
+
             private IEnumerable<IUriFilter> _filters;
 
             public ReceivingCrawledUri(Uri uri)
