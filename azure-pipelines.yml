@@ -29,4 +29,11 @@ steps:
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
     verbosityPack: 'Normal'
+    
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget'
 
