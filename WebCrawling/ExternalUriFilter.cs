@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WebCrawling
 {
@@ -10,12 +8,19 @@ namespace WebCrawling
     {
         private Uri _root;
         public ExternalUriFilter(Uri root)
-        { _root = root; }
+        {
+            _root = root;
+        }
 
         public List<Uri> Filter(IEnumerable<Uri> input)
         {
-            var result = input.Where(i => _root.Host == i.Host).ToList();
-            return result;
+            return input.Where(i => getBaseDomain(_root).Equals(getBaseDomain(i))).ToList();
+        }
+
+        public string getBaseDomain(Uri uri)
+        {
+            var tokens = uri.Host.Split('.').Reverse().Take(2).Reverse();
+            return String.Join(".", tokens);
         }
     }
 }
