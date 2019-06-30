@@ -7,13 +7,21 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  Major: '2'
+  Minor: '0'
+  Patch: '0'
 
 steps:
-
 - task: DotNetCoreCLI@2
+  displayName: 'pack'
   inputs:
     command: 'pack'
-    packagesToPack: '**/WebCrawling.csproj'
+    packagesToPack: '**/*.csproj'
     includesymbols: true
-    versioningScheme: 'byBuildNumber'
+    includesource: true
+    versioningScheme: 'byPrereleaseNumber'
+    majorVersion: '$(Major)'
+    minorVersion: '$(Minor)'
+    patchVersion: '$(Patch)'
     verbosityPack: 'Normal'
+
