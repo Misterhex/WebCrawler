@@ -18,7 +18,7 @@ steps:
     command: 'build'
 
 - task: DotNetCoreCLI@2
-  displayName: 'pack'
+  displayName: 'nuget pack'
   inputs:
     command: 'pack'
     packagesToPack: '**/*.csproj'
@@ -29,11 +29,16 @@ steps:
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
     verbosityPack: 'Normal'
+  
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'ls -lahR .'
     
-- task: DotNetCoreCLI@2
+- task: NuGetCommand@2
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'nuget'
-
+    verbosityPush: 'Normal'
