@@ -13,11 +13,6 @@ variables:
 
 steps:
 - task: DotNetCoreCLI@2
-  displayName: 'build'
-  inputs:
-    command: 'build'
-
-- task: DotNetCoreCLI@2
   displayName: 'nuget pack'
   inputs:
     command: 'pack'
@@ -28,13 +23,12 @@ steps:
     majorVersion: '$(Major)'
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
-    verbosityPack: 'Normal'
   
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'ls -lahR .'
-    
+    script: 'ls -lahR . | grep nuspec'
+
 - task: NuGetCommand@2
   inputs:
     command: 'push'
