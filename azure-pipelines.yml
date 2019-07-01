@@ -16,10 +16,9 @@ steps:
   displayName: 'nuget pack'
   inputs:
     command: 'pack'
-    packagesToPack: '**/WebCrawling.csproj'
+    packagesToPack: '**/MisterHex.WebCrawling.csproj'
     includesymbols: true
     includesource: true
-    versioningScheme: 'byPrereleaseNumber'
     majorVersion: '$(Major)'
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
@@ -28,7 +27,7 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'cat *.nuspec'
+    script: 'cat MisterHex.WebCrawling/*.nuspec'
 
 - task: NuGetCommand@2
   displayName: 'nuget push'
