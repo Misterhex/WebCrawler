@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CsQuery.Core" Version="2.0.1" />
+    <PackageReference Include="Polly" Version="7.1.0" />
     <PackageReference Include="System.Reactive" Version="4.1.5" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>

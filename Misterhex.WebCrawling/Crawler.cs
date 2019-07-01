@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive;
 using System.Threading;
+using Polly;
 
 namespace MisterHex.WebCrawling
 {
@@ -48,7 +49,16 @@ namespace MisterHex.WebCrawling
 
                     try
                     {
-                        string html = await client.GetStringAsync(uri);
+                        string html = await Policy
+                        .Handle<Exception>()
+                        .WaitAndRetryAsync(new[]
+                        {
+                            TimeSpan.FromSeconds(1),
+                            TimeSpan.FromSeconds(3),
+                            TimeSpan.FromSeconds(5)
+                        })
+                        .ExecuteAsync(async () => await client.GetStringAsync(uri));
+
                         result = CQ.Create(html)["a"].Select(i => i.Attributes["href"]).SafeSelect(i => new Uri(i));
                         result = Filter(result, _filters.ToArray());
 
