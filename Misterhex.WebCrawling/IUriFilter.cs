@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebCrawling
+namespace MisterHex.WebCrawling
 {
     public interface IUriFilter
     {

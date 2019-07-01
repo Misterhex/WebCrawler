@@ -1,5 +1,5 @@
 ﻿using System;
-using WebCrawling;
+using MisterHex.WebCrawling;
 
 namespace Example
 {
@@ -8,7 +8,7 @@ namespace Example
         static void Main(string[] args)
         {
             Crawler crawler = new Crawler();
-            IObservable<Uri> observable = crawler.Crawl(new Uri("http://www.codinghorror.com/"));
+            IObservable<Uri> observable = crawler.Crawl(new Uri("https://dotnet.microsoft.com"));
 
             observable.Subscribe(onNext: Console.WriteLine, onCompleted: () => Console.WriteLine("Crawling completed"));
 

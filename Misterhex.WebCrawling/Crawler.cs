@@ -9,7 +9,7 @@ using System.Reactive.Subjects;
 using System.Reactive;
 using System.Threading;
 
-namespace WebCrawling
+namespace MisterHex.WebCrawling
 {
     public class Crawler
     {

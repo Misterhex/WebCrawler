@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\MisterHex.WebCrawling\WebCrawling.csproj" />
+    <ProjectReference Include="..\MisterHex.WebCrawling\MisterHex.WebCrawling.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

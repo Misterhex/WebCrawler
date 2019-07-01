@@ -5,7 +5,7 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebCrawling
+namespace MisterHex.WebCrawling
 {
     internal class AlreadyVisitedUriFilter : IUriFilter
     {
