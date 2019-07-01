@@ -24,11 +24,11 @@ steps:
     minorVersion: '$(Minor)'
     patchVersion: '$(Patch)'
     verbosityPack: 'Normal'
-  
+
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'ls -lahR . | grep nuspec'
+    script: 'cat *.nuspec'
 
 - task: NuGetCommand@2
   displayName: 'nuget push'
