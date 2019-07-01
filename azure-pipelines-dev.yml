@@ -12,4 +12,4 @@ pool:
 steps:
 - task: DotNetCoreCLI@2
   inputs:
-    command: 'build -c Release'
+    command: 'build'
