@@ -6,7 +6,7 @@ WebCrawler
 Just a simple web crawler which return crawled links as IObservable<Uri> using reactive extension and async await.
 
 ```
-dotnet add package MisterHex.WebCrawling --version 2.0.1
+dotnet add package MisterHex.WebCrawling --version 2.0.2
 ```
 
 ## Usage
