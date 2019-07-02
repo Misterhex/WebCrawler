@@ -1,0 +1,34 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  Major: '2'
+  Minor: '0'
+  Patch: '0'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'nuget pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/MisterHex.WebCrawling.csproj'
+    includesymbols: true
+    includesource: true
+    majorVersion: '$(Major)'
+    minorVersion: '$(Minor)'
+    patchVersion: '$(Patch)'
+    verbosityPack: 'Normal'
+
+- task: NuGetCommand@2
+  displayName: 'nuget push'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'nuget.org'
+    verbosityPush: 'Normal'
